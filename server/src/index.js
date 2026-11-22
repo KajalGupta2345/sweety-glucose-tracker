@@ -6,6 +6,12 @@ const pool = require('./db');
 const app = express();
 app.use(cors());
 app.use(express.json());
+const authRoutes = require('./routes/auth');
+app.use('/api/auth', authRoutes);
+const readingRoutes = require('./routes/readings');
+app.use('/api/readings', readingRoutes);
+const reportRoutes = require('./routes/reports');
+app.use('/api/reports', reportRoutes);
 
 app.get('/health', async (req, res) => {
   try {
