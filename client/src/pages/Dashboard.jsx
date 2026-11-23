@@ -5,6 +5,7 @@ import { todayString } from '../constants';
 import ReadingForm from '../components/ReadingForm';
 import ReadingsList from '../components/ReadingsList';
 import Reports from '../components/Reports';
+import History from '../components/History';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -81,6 +82,8 @@ export default function Dashboard() {
 
       <h2>Reports</h2>
       <Reports report={report} />
+            <h2>All readings</h2>
+      <History refreshKey={report} />
     </div>
   );
 }

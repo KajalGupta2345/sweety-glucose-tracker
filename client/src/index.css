@@ -27,3 +27,5 @@ button.danger { background: #dc2626; }
 .stats div { display: flex; flex-direction: column; }
 .stats span { font-size: .8rem; color: #6b7280; }
 .stats strong { font-size: 1.3rem; }
+.pager { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 12px 0 32px; }
+.pager button:disabled { opacity: .5; cursor: not-allowed; }

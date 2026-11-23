@@ -2,6 +2,7 @@ const express = require('express');
 const pool = require('../db');
 const auth = require('../middleware/auth');
 const { SLOTS, validateReading ,withArticle} = require('../utils/validateReading');
+const { parsePagination } = require('../utils/pagination');
 
 const router = express.Router();
 router.use(auth); // sab routes login ke baad hi
@@ -45,7 +46,9 @@ router.post('/', async (req, res) => {
 
 // List my readings (optional ?date=YYYY-MM-DD)
 router.get('/', async (req, res) => {
-  const { date } = req.query;
+   const { date } = req.query;
+  const { page, limit, offset } = parsePagination(req.query);
+
   try {
     const params = [req.userId];
     let where = 'user_id = $1';
@@ -53,18 +56,31 @@ router.get('/', async (req, res) => {
       params.push(date);
       where += ' AND reading_date = $2';
     }
+
+    const countResult = await pool.query(
+      `SELECT COUNT(*) FROM readings WHERE ${where}`,
+      params
+    );
+    const total = Number(countResult.rows[0].count);
+
     const result = await pool.query(
       `SELECT id, to_char(reading_date, 'YYYY-MM-DD') AS date, slot, value
        FROM readings WHERE ${where}
-       ORDER BY reading_date DESC, id`,
-      params
+       ORDER BY reading_date DESC, id
+       LIMIT $${params.length + 1} OFFSET $${params.length + 2}`,
+      [...params, limit, offset]
     );
-    res.json({ readings: result.rows });
+
+    res.json({
+      readings: result.rows,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Something went wrong.' });
   }
 });
+
 
 // Edit a reading
 router.put('/:id', async (req, res) => {
